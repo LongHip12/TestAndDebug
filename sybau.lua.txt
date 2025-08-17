@@ -123,7 +123,6 @@ if getgenv().Language == "Vietnamese" then
         If = Window:AddTab({Title = "Tab Thông Tin", Icon = ""}),
         Client = Window:AddTab({Title = "Tab Client", Icon = ""}),
         Grow = Window:AddTab({Title = "Tab Grow A Garden\n Script", Icon = ""}),
-        99n = Window:AddTab({Title = "Tab 99 Night In \n Forest Script", Icon = ""}),
         BF = Window:AddTab({Title = "Tab Blox Fruit Script", Icon = ""}),
         Chest = Window:AddTab({Title = "Tab Farm Rương \n Blox Fruit Script", Icon = ""}),
         HOP = Window:AddTab({Title = "Tab HOP Server \n Blox Fruit Script", Icon = ""}),
