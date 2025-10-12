@@ -11,6 +11,7 @@ from datetime import datetime
 TOKEN = os.environ.get("DISCORD_BOT_TOKEN")  # Discord Bot Token
 CHANNEL_ID = int(os.environ.get("DISCORD_CHANNEL_ID", 0))  # Discord channel ID
 counter_file = "counter.json"
+print("Load")
 
 # ===== Load counter =====
 if os.path.exists(counter_file):
