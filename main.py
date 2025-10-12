@@ -1,3 +1,5 @@
+# Chatgpt:)
+
 # embed_counter_bot.py
 # Yêu cầu: pip install -U discord.py pytz
 import os
