@@ -8,7 +8,7 @@ import asyncio
 from pathlib import Path
 import discord
 from discord.ext import tasks
-from dotenv import load_dotenv()
+from dotenv import load_dotenv
 
 # --------- CẤU HÌNH - sửa các giá trị sau ----------
 load_dotenv()
