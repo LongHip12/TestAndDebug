@@ -5,53 +5,73 @@ import asyncio
 import json
 import os
 import threading
+from datetime import datetime
 
-TOKEN = os.environ.get("DISCORD_BOT_TOKEN")
-CHANNEL_ID = int(os.environ.get("DISCORD_CHANNEL_ID", 0))
-
+# ===== Cấu hình =====
+TOKEN = os.environ.get("DISCORD_BOT_TOKEN")  # Discord Bot Token
+CHANNEL_ID = int(os.environ.get("DISCORD_CHANNEL_ID", 0))  # Discord channel ID
 counter_file = "counter.json"
+
+# ===== Load counter =====
 if os.path.exists(counter_file):
     with open(counter_file, "r") as f:
         counter = json.load(f).get("count", 0)
 else:
     counter = 0
 
+# ===== Discord Bot =====
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="!", intents=intents)
+
+# ===== Flask App =====
 app = Flask(__name__)
 
-# Endpoint Roblox gửi request
+# ----- Route / : hiển thị server running -----
+@app.route("/", methods=["GET"])
+def index():
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return f"<h2>🚀 LonelyHub API is running! ({now}) Flask + Discord Bot active.</h2>", 200
+
+# ----- Route /execute : nhận POST từ Roblox -----
 @app.route("/execute", methods=["POST"])
 def execute():
     global counter
-    data = request.json
-    user = data.get("user", "Unknown")
+    try:
+        data = request.json
+        user = data.get("user", "Unknown")
+        counter += 1
 
-    counter += 1
-    # Lưu counter
-    with open(counter_file, "w") as f:
-        json.dump({"count": counter}, f)
+        # Lưu counter
+        with open(counter_file, "w") as f:
+            json.dump({"count": counter}, f)
 
-    print(f"[LOG] Script executed by: {user}, total executed: {counter}")
+        # Log POST request
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print(f"[{now}] POST received from '{user}'. Total executed: {counter}")
 
-    # Đổi tên kênh Discord (chạy trong event loop bot)
-    async def edit_channel():
-        channel = bot.get_channel(CHANNEL_ID)
-        if channel:
-            await channel.edit(name=f"Executed: {counter}")
-            print(f"[LOG] Discord channel updated to: Executed: {counter}")
-        else:
-            print("[WARN] Channel not found or bot missing permissions")
-    asyncio.run_coroutine_threadsafe(edit_channel(), bot.loop)
+        # Đổi tên channel Discord async
+        async def edit_channel():
+            await bot.wait_until_ready()
+            channel = bot.get_channel(CHANNEL_ID)
+            if channel:
+                await channel.edit(name=f"Executed: {counter}")
+                print(f"[{now}] Discord channel name updated to 'Executed: {counter}'")
 
-    return jsonify({"status": "success", "executed_count": counter})
+        asyncio.run_coroutine_threadsafe(edit_channel(), bot.loop)
 
-# Chạy bot Discord trong thread riêng
+        return jsonify({"status": "success", "executed_count": counter})
+
+    except Exception as e:
+        print(f"[ERROR] {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# ===== Chạy bot Discord trong thread =====
 def run_bot():
     asyncio.run(bot.start(TOKEN))
 
-threading.Thread(target=run_bot).start()
+threading.Thread(target=run_bot, daemon=True).start()
 
-# Chạy Flask
+# ===== Run Flask =====
 if __name__ == "__main__":
+    print("🚀 Flask server is running... Listening for POST requests on port 8000")
     app.run(host="0.0.0.0", port=8000)
