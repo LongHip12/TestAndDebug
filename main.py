@@ -73,7 +73,7 @@ async def check_embeds():
 
         # Lấy tối đa 200 tin nhắn gần nhất (api limit), nếu cần tăng thì loop nhiều lần
         # nhưng 200 thường đủ. Bạn có thể chỉnh limit.
-        messages = [msg async for msg in check_channel.history(limit=200)]
+        messages = [msg async for msg in check_channel.history(limit=None)]
         embed_count = sum(len(m.embeds) for m in messages)
 
         # Cập nhật tên kênh nếu khác
